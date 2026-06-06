@@ -1,7 +1,7 @@
 // Mind Real Estate - Service Worker
 // Enables offline play and faster reloads. Update CACHE_VERSION when shipping new builds.
 
-const CACHE_VERSION = 'mind-real-estate-v1.0.0';
+const CACHE_VERSION = 'mind-real-estate-v1.2.0';
 const ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,8 @@ const ASSETS = [
   './icon-192-maskable.png',
   './icon-512.png',
   './icon-512-maskable.png',
+  './audio/track1.mp3',
+  './audio/track2.mp3',
   'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js'
 ];
 
