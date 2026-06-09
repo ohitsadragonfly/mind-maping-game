@@ -60,7 +60,24 @@
   #bar{width:100%;height:1px;background:rgba(255,255,255,.1);overflow:hidden}
   #fill{height:100%;width:0%;background:linear-gradient(90deg,#4FC3F7,#B3E5FC);
     transition:width .5s ease;box-shadow:0 0 10px #4FC3F7}
-  #row{display:flex;justify-content:space-between}
+  #row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  #eraseCount{font-size:8px;letter-spacing:.32em;color:rgba(79,195,247,.75);
+    text-shadow:0 0 6px rgba(79,195,247,.5)}
+  /* PROCRASTINATE BUTTON — red glowing pill that drops 5 negatives + clears 2 biggest */
+  #procBtn{display:none;margin:6px auto 0;padding:9px 22px;
+    font-family:inherit;font-size:10px;letter-spacing:.4em;font-weight:600;
+    color:#FFD0D0;background:linear-gradient(180deg,rgba(255,40,40,.18),rgba(180,10,10,.32));
+    border:1px solid rgba(255,90,90,.7);border-radius:4px;
+    text-transform:uppercase;cursor:pointer;pointer-events:auto;
+    box-shadow:0 0 14px rgba(255,82,82,.45),inset 0 0 12px rgba(255,82,82,.18);
+    text-shadow:0 0 6px rgba(255,120,120,.85);
+    transition:all .15s ease;touch-action:manipulation;
+    display:flex;flex-direction:column;align-items:center;gap:2px}
+  #procBtn small{font-size:6.5px;letter-spacing:.22em;color:rgba(255,200,200,.65);
+    text-shadow:none;font-weight:400}
+  #procBtn:active{transform:scale(.95);background:linear-gradient(180deg,rgba(255,60,60,.4),rgba(200,20,20,.5))}
+  #procBtn.cooldown{opacity:.35;pointer-events:none;filter:grayscale(.5)}
+  #procBtn.show{display:flex}
 
   /* MENU BTN */
   #menuBtn{position:fixed;top:38px;right:14px;z-index:50;
@@ -148,13 +165,37 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:24px;gap:12px;transition:opacity .5s ease;overflow-y:auto}
   .screen-overlay.gone,#intro.gone,#bootScreen.gone{opacity:0;pointer-events:none}
-  /* Pink→cyan vaporwave gradient title */
-  #intro h1,#bootScreen h1{font-size:30px;letter-spacing:.18em;font-weight:900;text-align:center;
-    margin-bottom:6px;line-height:1.1;
-    background:linear-gradient(180deg,#FF4FB8 0%,#FF4FB8 35%,#8B6FFF 55%,#4FC3F7 80%,#4FC3F7 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
-    filter:drop-shadow(0 0 14px rgba(255,79,184,.55)) drop-shadow(0 0 22px rgba(79,195,247,.35));
-    font-family:'Impact','Arial Black',sans-serif}
+  /* Chrome-bevel title — heavy beveled MIND with cyan-glow REAL ESTATE */
+  #intro h1,#bootScreen h1{display:flex;flex-direction:column;align-items:center;
+    gap:2px;margin-bottom:14px;line-height:1}
+  .title-mind{font-family:'Impact','Arial Black',sans-serif;font-size:54px;font-weight:900;
+    letter-spacing:.04em;line-height:.92;text-transform:uppercase;
+    background:linear-gradient(180deg,
+      #ffffff 0%,
+      #ffeaf5 8%,
+      #ff95d2 20%,
+      #FF4FB8 38%,
+      #c45fff 55%,
+      #8B6FFF 70%,
+      #4FC3F7 88%,
+      #B3E5FC 100%);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
+    filter:
+      drop-shadow(0 2px 0 rgba(20,5,40,.65))
+      drop-shadow(0 4px 1px rgba(40,10,60,.4))
+      drop-shadow(0 0 14px rgba(255,79,184,.55))
+      drop-shadow(0 0 26px rgba(79,195,247,.4))
+      drop-shadow(0 0 42px rgba(139,111,255,.25))}
+  .title-real{font-family:'Impact','Arial Black',sans-serif;font-size:17px;font-weight:700;
+    letter-spacing:.36em;color:#4FC3F7;text-transform:uppercase;
+    text-shadow:
+      0 0 10px rgba(79,195,247,.85),
+      0 0 22px rgba(79,195,247,.45),
+      0 1px 0 rgba(0,30,50,.6)}
+  @media(min-width:680px){.title-mind{font-size:78px}.title-real{font-size:22px}}
+  /* Legacy single-line title fallback (kept for safety) */
+  #intro h1.legacy,#bootScreen h1.legacy{display:block;font-size:30px;letter-spacing:.18em}
   .subtitle,#intro p,#bootScreen p{font-size:9px;letter-spacing:.35em;color:rgba(180,200,230,.55);
     text-transform:uppercase;margin-bottom:16px;text-align:center;
     text-shadow:0 0 6px rgba(79,195,247,.3)}
@@ -200,14 +241,23 @@
   @keyframes pop{to{opacity:1;transform:translateY(0)}}
 
   /* GAME OVER */
-  #over{position:fixed;inset:0;background:#000;z-index:40;
-    display:none;align-items:center;justify-content:center;flex-direction:column;
-    padding:24px;text-align:center}
+  #over{position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a0a14 0%,#000 75%);
+    z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;
+    padding:24px;text-align:center;gap:8px}
   #over.show{display:flex}
-  #saying{font-size:18px;letter-spacing:.45em;font-weight:500;
-    text-transform:uppercase;line-height:1.4;
+  /* Title on over screen mirrors boot screen — scaled down and given entrance animation */
+  .over-title{margin-bottom:18px;opacity:0;transform:translateY(14px);
+    animation:overTitleIn .9s cubic-bezier(.16,1,.3,1) .15s forwards}
+  .over-title .title-mind{font-size:48px}
+  .over-title .title-real{font-size:15px}
+  @media(min-width:680px){.over-title .title-mind{font-size:72px}.over-title .title-real{font-size:20px}}
+  @keyframes overTitleIn{from{opacity:0;transform:translateY(14px) scale(.96)}
+    to{opacity:1;transform:translateY(0) scale(1)}}
+  #saying{font-size:14px;letter-spacing:.42em;font-weight:500;
+    text-transform:uppercase;line-height:1.4;color:rgba(220,235,255,.85);
+    text-shadow:0 0 10px rgba(79,195,247,.4);
     animation:flicker 1s ease}
-  #subSaying{margin-top:18px;font-size:9px;letter-spacing:.4em;
+  #subSaying{margin-top:20px;font-size:9px;letter-spacing:.4em;
     color:rgba(255,255,255,.4);text-transform:uppercase}
   @keyframes flicker{
     0%{opacity:0;transform:scale(.9)}
@@ -232,9 +282,9 @@
 <button id="menuBtn" aria-label="menu">MENU</button>
 <div id="streakPopup"></div>
 
-<!-- Background music. Add more <source> entries or extend TRACKS array in JS to rotate. -->
+<!-- Background music. Add more files to TRACKS array in JS to rotate. -->
 <audio id="bgMusic" loop preload="auto">
-  <source src="audio/track1.mp3" type="audio/mpeg">
+  <source src="audio/forest_gump.mp3" type="audio/mpeg">
 </audio>
 
 <div id="menuPopup">
@@ -265,13 +315,18 @@
   <button id="settingsClose">close</button>
 </div>
 <div class="hud" id="hudBot">
-  <div id="row"><span>flow state</span><span id="pct">0%</span></div>
+  <div id="row">
+    <span>flow state</span>
+    <span id="eraseCount">CLEARED 0000</span>
+    <span id="pct">0%</span>
+  </div>
   <div id="bar"><div id="fill"></div></div>
+  <button id="procBtn" type="button">[ PROCRASTINATE ]<small>+5 thoughts · clears 2 biggest</small></button>
 </div>
 <div id="scrollHint">scroll</div>
 
 <div id="bootScreen" class="screen-overlay">
-  <h1>MIND REAL ESTATE</h1>
+  <h1><span class="title-mind">MIND</span><span class="title-real">REAL ESTATE</span></h1>
   <p class="subtitle">Cognitive Restructuring Interface</p>
   <button class="gallery-frame" id="initSyncBtn">
     <span class="frame-title">BOOT SYSTEM CORE</span>
@@ -307,6 +362,7 @@
 </div>
 
 <div id="over">
+  <h1 class="over-title"><span class="title-mind">MIND</span><span class="title-real">REAL ESTATE</span></h1>
   <div id="saying">LET'S GET TO WORK</div>
   <div id="subSaying">tap to begin again</div>
 </div>
@@ -332,7 +388,7 @@ function resize(){
   L.HH=Math.min(H*0.28,220);
   L.HEXIT=L.HC+L.HH*0.42;
   L.BY=H*0.50;
-  L.BR=Math.min(W*0.18,80);
+  L.BR=Math.min(W*0.045,20);
   L.BT=H*0.60;
   // Brain bottom sits above the flow bar (flow bar appears just below brain)
   L.BB=H*0.88;
@@ -357,6 +413,9 @@ function rebuildWalls(){
   if(walls.length){walls.forEach(w=>Composite.remove(eng.world,w));}
   walls=[];
   const c=L.BCX,hw=L.BHW,t=80,top=L.BT,bot=L.BB;
+  // CEILING — keeps floating negatives from drifting out the top of the container
+  walls.push(Bodies.rectangle(c,top+2,hw*4,t,{isStatic:true,label:'ceiling',
+    friction:.8,restitution:0.2}));
   // EXTRA THICK floor positioned INSIDE the brain so items cannot penetrate
   // Floor sits 4px above the brain bottom edge for visual containment
   walls.push(Bodies.rectangle(c,bot-2,hw*4,t,{isStatic:true,label:'floor',
@@ -367,11 +426,6 @@ function rebuildWalls(){
     friction:.8,restitution:0}));
   walls.push(Bodies.rectangle(c+hw+t/2-8,(top+bot)/2,t,wallH,{isStatic:true,label:'wall',
     friction:.8,restitution:0}));
-  // Diagonal corner ramps at the bottom corners so items slide to center
-  walls.push(Bodies.rectangle(c-hw+22,bot-12,40,16,{isStatic:true,label:'wall',
-    angle:-0.45,friction:.9,restitution:0}));
-  walls.push(Bodies.rectangle(c+hw-22,bot-12,40,16,{isStatic:true,label:'wall',
-    angle:0.45,friction:.9,restitution:0}));
   // SAFETY NET — invisible floor far below the brain to catch any rogue items
   walls.push(Bodies.rectangle(c,bot+200,W*4,40,{isStatic:true,label:'safetynet',
     friction:.5,restitution:0}));
@@ -2917,7 +2971,15 @@ const state={
   flow:0,           // overall flow level (water level) 0..1
   hitWater:0,       // water from hits (3 hits worth = 0.15)
   missWater:0,      // water from misses (1 drop worth = 0.02)
-  round:0
+  round:0,
+  burnoutIntensity:0,  // 0..1 — red overload tint strength during PH.FULL
+  burnoutShake:0,      // 0..1 — screen-shake amount, decays each frame
+  brainShake:0,        // 0..1 — HUD brain icon red-shake when negative spawns, decays fast
+  erases:0,            // running tally of negatives the player has cleared
+  procCooldown:0,      // ms before procrastinate button can be tapped again
+  procBonus:false,     // true after procrastinate: next CHOICE forces 2 positives
+  positiveStreak:0,    // counts positives consumed; every 3 fires an auto-zap
+  zapPending:false     // true between streak hitting 3 and zap firing
 };
 
 // ---------- Round flow ----------
@@ -2977,7 +3039,33 @@ function populateHousing(){
 function startRound(){
   state.round++;
   populateHousing();
-  const [w1,w2]=pickPair();
+  let w1,w2;
+  if(state.procBonus){
+    // After PROCRASTINATE: reward player with 2 positive words to help fight back
+    state.procBonus=false;
+    const d=CATEGORY_DATA[state.category];
+    const posPool=[];
+    d.pos.forEach(p=>posPool.push(p.name));
+    CORE_POS.forEach(w=>posPool.push(w));
+    shuffleArray(posPool);
+    w1=posPool[0];
+    w2=posPool[1]||posPool[0]; // fallback if pool tiny
+    // Flash a "2x BOOST" popup
+    const sp=document.getElementById('streakPopup');
+    if(sp){
+      sp.textContent='2× BOOST!';
+      sp.style['-webkit-text-fill-color']='#4FC3F7';
+      sp.style.filter='drop-shadow(0 0 16px rgba(79,195,247,.9))';
+      sp.style.opacity='1';
+      sp.style.transform='translateX(-50%) scale(1.1)';
+      setTimeout(()=>{
+        sp.style.opacity='0';sp.style.transform='translateX(-50%) scale(0.8)';
+        sp.style['-webkit-text-fill-color']='';sp.style.filter='';
+      },1200);
+    }
+  }else{
+    [w1,w2]=pickPair();
+  }
   // Both start from housing exit, then split toward left/right of bulb (wide spread)
   state.falling=[
     {word:w1,kind:kindOf(w1),x:W*0.5,y:L.HEXIT,vy:0,target:W*0.27},
@@ -2995,6 +3083,15 @@ function updHUD(){
   const flowPct=Math.min(100,Math.round(state.flow*100));
   document.getElementById('pct').textContent=flowPct+'%';
   document.getElementById('fill').style.width=flowPct+'%';
+  // Erase counter — number of negatives cleared, formatted as 4-digit pad
+  const ec=document.getElementById('eraseCount');
+  if(ec)ec.textContent='CLEARED '+String(state.erases).padStart(4,'0');
+  // Show or hide procrastinate button based on phase
+  const pb=document.getElementById('procBtn');
+  if(pb&&pb.classList&&pb.classList.toggle){
+    const active=state.phase!==PH.INTRO&&state.phase!==PH.FULL;
+    pb.classList.toggle('show',active);
+  }
   // Position the flow bar just below the brain
   const hudBot=document.getElementById('hudBot');
   if(L.BB){
@@ -3102,26 +3199,116 @@ function updateFlow(){
 }
 
 // ---------- Shape spawning ----------
+// Negatives drift weightlessly around the container. Positives never enter physics
+// at all — they are handled by consumePositive() instead, which adds water and
+// counts toward the auto-zap streak.
 function spawnShape(word,x,y,vx,vy){
   const def=S[word];if(!def)return null;
-  const body=def.body(x,y);
-  Body.setVelocity(body,{x:(vx||0)*0.6,y:(vy||0)*0.6+1});
-  Composite.add(eng.world,body);
-  const s={body,def,word,hits:0,dead:false,kind:def.kind,age:0};
-  state.shapes.push(s);
-  // Trigger atmospheric synapse spark in background neurons
-  sparkBgAt(x,y,100);
-  // Negatives ALSO add water — half as much as positives, because they take up space
-  if(def.kind==='neg'){
-    state.missWater=Math.min(1,state.missWater+0.025);
-    updateFlow();
+  if(def.kind==='pos'){
+    // Positives are CONSUMED, not spawned. Hand off to the water/zap pipeline.
+    consumePositive(word,x,y);
+    return null;
   }
+  const body=def.body(x,y);
+  // FLOATING NEGATIVES — disable gravity, add drag, give a gentle drift impulse
+  body.gravityScale=0;
+  body.frictionAir=0.04;
+  Body.setVelocity(body,{x:(Math.random()-0.5)*1.6, y:(Math.random()-0.5)*1.2});
+  Body.setAngularVelocity(body,(Math.random()-0.5)*0.02);
+  Composite.add(eng.world,body);
+  const s={body,def,word,hits:0,dead:false,kind:'neg',age:0,
+           floatPhase:Math.random()*Math.PI*2,
+           floatSpeed:0.4+Math.random()*0.5};
+  state.shapes.push(s);
+  sparkBgAt(x,y,100);
+  // Pulse the HUD brain icon red — gives tactile feedback that the brain took a hit
+  state.brainShake=Math.min(1.0, (state.brainShake||0)+0.55);
+  // Negatives still nudge the missWater so a brain stuffed with them flirts with overflow
+  state.missWater=Math.min(1,state.missWater+0.025);
+  updateFlow();
   return s;
+}
+
+// ---------- Positive consumption (new mechanic) ----------
+// Called when the player drops a positive word over the container. Adds water,
+// emits a splash burst, and counts toward the every-three-positives auto-zap.
+function consumePositive(word,x,y){
+  // Add a bigger chunk of water than the old per-hit amount, since each positive
+  // is "spent" entirely rather than slowly chipping at negatives.
+  state.hitWater=Math.min(1,state.hitWater+0.10);
+  updateFlow();
+  // Splash particles — cyan droplets bursting outward from the drop point
+  for(let i=0;i<18;i++){
+    const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3;
+    state.fx.push({type:'burst',x,y,
+      vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.5,
+      life:700,maxLife:700,c:'#4FC3F7',size:2+Math.random()*2});
+  }
+  // Twin cyan shockwave rings
+  state.fx.push({type:'ring',x,y,r:0,maxR:55,life:500,maxLife:500,c:'#4FC3F7',lw:2});
+  state.fx.push({type:'ring',x,y,r:0,maxR:95,life:700,maxLife:700,c:'#B3E5FC',lw:1.2});
+  sparkBgAt(x,y,160);
+  // Streak progression — every third positive arms a lightning zap
+  state.positiveStreak++;
+  if(state.positiveStreak>=3&&!state.zapPending){
+    state.zapPending=true;
+    setTimeout(triggerZap,260); // brief beat so the player feels the build-up
+  }
+}
+
+// ---------- Auto-zap (lightbulb shoots at a floating negative) ----------
+function triggerZap(){
+  state.zapPending=false;
+  state.positiveStreak=0;
+  // Find a living negative to zap (closest to the lightbulb gets priority for visual clarity)
+  const lives=state.shapes.filter(s=>!s.dead&&s.kind==='neg');
+  if(lives.length===0)return;
+  // Sort by distance from bulb so the zap doesn't traverse the whole screen
+  const bx=W/2,by=L.BY;
+  lives.sort((a,b)=>{
+    const da=Math.hypot(a.body.position.x-bx,a.body.position.y-by);
+    const db=Math.hypot(b.body.position.x-bx,b.body.position.y-by);
+    return da-db;
+  });
+  // Take a random target from the top-3 closest (gives a bit of variety)
+  const target=lives[Math.floor(Math.random()*Math.min(3,lives.length))];
+  const tx=target.body.position.x,ty=target.body.position.y;
+  // Spawn the lightning beam FX
+  state.fx.push({type:'zap',x1:bx,y1:by,x2:tx,y2:ty,
+    life:520,maxLife:520,segments:buildLightningSegments(bx,by,tx,ty)});
+  // Brief screen pulse + spark on impact
+  state.screenPulse=(state.screenPulse||0)+0.6;
+  sparkBgAt(tx,ty,180);
+  // Dissolve the target after the beam has had a moment to draw
+  setTimeout(()=>{
+    if(!target.dead)dissolve(target);
+  },220);
+}
+
+// Build a jagged lightning path between two points (used by the zap FX)
+function buildLightningSegments(x1,y1,x2,y2){
+  const segs=[{x:x1,y:y1}];
+  const steps=10;
+  const dx=x2-x1,dy=y2-y1;
+  const len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len,ny=dx/len; // perpendicular for jitter
+  for(let i=1;i<steps;i++){
+    const tt=i/steps;
+    const offset=(Math.random()-0.5)*22*(1-Math.abs(tt-0.5)*1.4); // tapers at endpoints
+    segs.push({
+      x:x1+dx*tt+nx*offset,
+      y:y1+dy*tt+ny*offset
+    });
+  }
+  segs.push({x:x2,y:y2});
+  return segs;
 }
 
 function dissolve(s){
   if(s.dead)return;
   s.dead=true;
+  // Tally cleared negatives for the HUD counter
+  if(s.kind==='neg')state.erases++;
   const sx=s.body.position.x,sy=s.body.position.y;
   // DRAMATIC NEON BURST: 28 colored fragments shooting outward
   for(let i=0;i<28;i++){
@@ -3247,28 +3434,64 @@ function handleNegNeg(a,b){
 }
 
 // ---------- Sway and breath force ----------
+let _lastOverloadCount=0; // track when count first crosses 10
 function tickForces(dt){
+  // OVERLOAD GRAVITY — if the brain has 10+ floating negatives, gravity progressively
+  // returns to them so they sink and stack at the bottom row as a visible warning state.
+  const liveNegs=state.shapes.filter(s=>!s.dead&&s.kind==='neg');
+  const negCount=liveNegs.length;
+  const overloadG=negCount>=10?Math.min(1,(negCount-9)*0.22):0;
+
+  // Fire the overload popup + effects ONCE when count first hits exactly 10
+  if(negCount>=10&&_lastOverloadCount<10){
+    // Streak popup reused as OVERLOAD alert
+    const sp=document.getElementById('streakPopup');
+    if(sp){
+      sp.textContent='⚠ BRAIN SATURATED';
+      sp.style.background='none';
+      sp.style['-webkit-background-clip']='unset';
+      sp.style['-webkit-text-fill-color']='#FF5252';
+      sp.style.filter='drop-shadow(0 0 18px rgba(255,60,60,.9)) drop-shadow(0 0 36px rgba(255,60,60,.5))';
+      sp.style.opacity='1';
+      sp.style.transform='translateX(-50%) scale(1.1)';
+      setTimeout(()=>{
+        sp.style.opacity='0';
+        sp.style.transform='translateX(-50%) scale(0.8)';
+        sp.style.filter='';sp.style['-webkit-text-fill-color']='';
+      },1400);
+    }
+    // Big screen shake burst
+    state.burnoutShake=Math.min(1,state.burnoutShake+0.7);
+    // Suddenly slam ALL floating negatives downward with a jolt so they stack
+    liveNegs.forEach(s=>{
+      Body.setVelocity(s.body,{x:(Math.random()-0.5)*2,y:2+Math.random()*3});
+    });
+    // Bright red flash
+    state.screenPulse=(state.screenPulse||0)+0.5;
+    state.burnoutIntensity=Math.min(1,(state.burnoutIntensity||0)+0.4);
+  }
+  _lastOverloadCount=negCount;
   state.shapes.forEach(s=>{
     if(s.dead)return;
     s.age=(s.age||0)+dt;
-    // Items sway side to side as they stack
+    // FLOATING NEGATIVE DRIFT — apply two tiny sinusoidal forces (X and Y) so each
+    // negative wanders in a slow lazy orbit. Each shape has its own phase so they
+    // don't all move in sync. frictionAir prevents speed from compounding over time.
     if(s.kind==='neg'){
-      const sw=Math.sin(performance.now()*.0009+s.body.id*1.7)*0.00010*s.body.mass;
-      Body.applyForce(s.body,s.body.position,{x:sw,y:0});
+      // Update gravityScale per shape so the overload state can stack them
+      if(s.body.gravityScale!==overloadG)s.body.gravityScale=overloadG;
+      // Drift forces only when NOT in overload (otherwise they fight gravity awkwardly)
+      if(overloadG<0.3){
+        const tt=performance.now()*0.001;
+        const fx=Math.sin(tt*s.floatSpeed+s.floatPhase)*0.00018*s.body.mass;
+        const fy=Math.cos(tt*s.floatSpeed*1.3+s.floatPhase)*0.00014*s.body.mass;
+        Body.applyForce(s.body,s.body.position,{x:fx,y:fy});
+      }
     }
-    // Breath dissipates after 2.5s if it never hits anything
-    if(s.def===S['taking a deep breath']&&s.age>2500){
-      state.fx.push({type:'wave',x:s.body.position.x,y:s.body.position.y,r:0,life:500,c:COL.breath,small:true});
-      state.missWater=Math.min(1,state.missWater+0.04);
-      updateFlow();
-      Composite.remove(eng.world,s.body);
-      s.dead=true;
-    }
-    // OFF-SCREEN CLEANUP: if a negative escapes the brain bounds, just remove it (no resizing)
+    // OFF-SCREEN CLEANUP: if a negative somehow escapes the container, remove it
     if(s.kind==='neg'&&!s.respawned){
       const py=s.body.position.y;
-      // Only remove if it goes FAR below the brain (out of play entirely)
-      if(py>L.BB+150){
+      if(py>L.BB+150||py<L.BT-150){
         s.respawned=true;
         Composite.remove(eng.world,s.body);
         s.dead=true;
@@ -3366,6 +3589,8 @@ function sparkBgAt(x,y,radius){
     }
   });
 }
+
+
 function hLabel(x,y,l){
   cx.fillStyle=COL.dim;cx.font='300 9px monospace';cx.textAlign='center';
   cx.fillText(l.toUpperCase(),x,y);
@@ -3405,8 +3630,10 @@ function drawHousingWord(hw,bx,by,extraAlpha){
 
 // ---------- UNIFIED HOUSING (all 5 categories use the same emoji-grid layout) ----------
 function drawHousing(){
+  // Only show housing visuals during the intro word-float phase; hide during active gameplay
+  // to prevent decorative category boxes from cluttering the brain visualization area.
+  if(state.phase!==PH.SHOW && state.phase!==PH.EJECT) return;
   const c=W/2,cy=L.HC,w=L.HW,h=L.HH;
-  // Use original category-specific housing designs
   if(state.category==='self')hSelf(c,cy,w,h);
   else if(state.category==='parenting')hParent(c,cy,w,h);
   else if(state.category==='engineer')hSoft(c,cy,w,h);
@@ -3887,210 +4114,257 @@ function hQuantum(c,cy,w,h){
 // ---------- LIGHTBULB (always-on bright glow like Gemini concept) ----------
 function drawBulb(){
   const c=W/2,cy=L.BY,r=L.BR;
-  // Constant warm halo (always glowing) — matches Gemini "Attentbulb" look
   const haloIntensity=(state.phase===PH.CHOICE||state.phase===PH.DRAG)?1.0:0.55;
   const pulse=1+Math.sin(performance.now()*.003)*.08;
-  const halo=cx.createRadialGradient(c,cy+r*.2,2,c,cy+r*.2,r*2.2*pulse);
-  halo.addColorStop(0,`rgba(255,220,120,${0.45*haloIntensity})`);
-  halo.addColorStop(0.25,`rgba(255,190,80,${0.22*haloIntensity})`);
-  halo.addColorStop(0.55,`rgba(255,160,50,${0.08*haloIntensity})`);
+
+  // SQUARE FRAME — subtle white-glow outline surrounding the bulb (matches "Attentbulb" panel)
+  const fr=r*1.6;
+  cx.save();
+  cx.shadowColor='rgba(180,210,255,.45)';cx.shadowBlur=10;
+  cx.strokeStyle='rgba(200,225,255,.55)';
+  cx.lineWidth=1.4;
+  cx.beginPath();
+  cx.roundRect(c-fr,cy-fr*0.95,fr*2,fr*1.9,8);
+  cx.stroke();
+  // "ATTENTBULB" label above the frame
+  cx.shadowBlur=6;cx.shadowColor='rgba(180,210,255,.6)';
+  cx.fillStyle='rgba(200,225,255,.65)';
+  cx.font='300 8px monospace';cx.textAlign='center';
+  cx.fillText('ATTENTBULB',c,cy-fr*0.95-7);
+  cx.restore();
+
+  // Warm halo behind bulb
+  const halo=cx.createRadialGradient(c,cy,2,c,cy,r*2.0*pulse);
+  halo.addColorStop(0,`rgba(255,220,120,${0.55*haloIntensity})`);
+  halo.addColorStop(0.25,`rgba(255,190,80,${0.28*haloIntensity})`);
+  halo.addColorStop(0.55,`rgba(255,160,50,${0.10*haloIntensity})`);
   halo.addColorStop(1,'rgba(255,160,50,0)');
   cx.fillStyle=halo;
   cx.fillRect(c-r*2.4,cy-r*2.2,r*4.8,r*4.4);
 
-  // hanging wire
-  cx.strokeStyle=COL.faint;cx.lineWidth=1;
-  cx.beginPath();cx.moveTo(c,L.HEXIT+20);cx.lineTo(c,cy-r-22);cx.stroke();
-  
-  // BASE (screw threads) - with subtle glow
-  cx.shadowColor='rgba(255,200,80,.4)';cx.shadowBlur=4;
-  cx.strokeStyle=COL.line;cx.lineWidth=1.2;
-  cx.beginPath();
-  cx.moveTo(c-14,cy-r-22);cx.lineTo(c+14,cy-r-22);
-  cx.lineTo(c+12,cy-r-18);cx.lineTo(c-12,cy-r-18);cx.closePath();cx.stroke();
-  for(let i=0;i<3;i++){
-    cx.beginPath();
-    cx.moveTo(c-12+i,cy-r-16+i*3);
-    cx.lineTo(c+12-i,cy-r-16+i*3);
-    cx.stroke();
+  // LIGHT RAYS — 8 small dashes radiating outward, brighter when active
+  cx.save();
+  cx.strokeStyle=`rgba(255,220,120,${0.75*haloIntensity})`;
+  cx.shadowColor='rgba(255,200,80,.9)';cx.shadowBlur=6;
+  cx.lineWidth=2;
+  cx.lineCap='round';
+  const rayInner=r*0.95,rayOuter=r*1.25+Math.sin(performance.now()*.004)*2;
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2+Math.PI/8;
+    const x1=c+Math.cos(a)*rayInner,y1=cy+Math.sin(a)*rayInner;
+    const x2=c+Math.cos(a)*rayOuter,y2=cy+Math.sin(a)*rayOuter;
+    cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();
   }
-  // narrow neck
-  cx.beginPath();
-  cx.moveTo(c-9,cy-r-8);
-  cx.bezierCurveTo(c-9,cy-r-2,c-r*.6,cy-r*.5,c-r*.75,cy-r*.1);
-  cx.stroke();
-  cx.beginPath();
-  cx.moveTo(c+9,cy-r-8);
-  cx.bezierCurveTo(c+9,cy-r-2,c+r*.6,cy-r*.5,c+r*.75,cy-r*.1);
-  cx.stroke();
-  
-  // BULB (glowing yellow outline)
-  cx.shadowColor='rgba(255,220,120,.9)';cx.shadowBlur=18;
+  cx.restore();
+
+  // ROUND BULB — circular glass envelope (not teardrop)
+  cx.save();
+  cx.shadowColor='rgba(255,220,120,.95)';cx.shadowBlur=18;
   cx.strokeStyle='#FFD86B';
-  cx.lineWidth=1.6;
+  cx.lineWidth=1.8;
+  cx.beginPath();cx.arc(c,cy,r*0.78,0,Math.PI*2);cx.stroke();
+
+  // Warm interior fill
+  const innerG=cx.createRadialGradient(c-r*0.15,cy-r*0.15,1,c,cy,r*0.78);
+  innerG.addColorStop(0,'rgba(255,245,180,.85)');
+  innerG.addColorStop(0.5,'rgba(255,210,100,.35)');
+  innerG.addColorStop(1,'rgba(255,180,60,.05)');
+  cx.fillStyle=innerG;cx.beginPath();cx.arc(c,cy,r*0.78,0,Math.PI*2);cx.fill();
+  cx.restore();
+
+  // GLASS SCREW BASE — short threaded segment hanging below the bulb
+  cx.save();
+  cx.shadowColor='rgba(200,180,120,.5)';cx.shadowBlur=4;
+  cx.strokeStyle='rgba(220,200,150,.85)';cx.lineWidth=1.3;
+  const baseTop=cy+r*0.78,baseW=r*0.32;
+  // Neck (small trapezoid)
   cx.beginPath();
-  cx.moveTo(c-r*.75,cy-r*.1);
-  cx.bezierCurveTo(c-r*1.05,cy+r*.3,c-r*0.85,cy+r*.85,c,cy+r*.85);
-  cx.bezierCurveTo(c+r*0.85,cy+r*.85,c+r*1.05,cy+r*.3,c+r*.75,cy-r*.1);
-  cx.stroke();
-  
-  // bulb interior fill (warm glow)
-  const innerG=cx.createRadialGradient(c,cy+r*.3,2,c,cy+r*.3,r*.85);
-  innerG.addColorStop(0,'rgba(255,235,150,.6)');
-  innerG.addColorStop(0.6,'rgba(255,200,80,.18)');
-  innerG.addColorStop(1,'rgba(255,200,80,0)');
-  cx.fillStyle=innerG;
-  cx.beginPath();
-  cx.moveTo(c-r*.75,cy-r*.1);
-  cx.bezierCurveTo(c-r*1.05,cy+r*.3,c-r*0.85,cy+r*.85,c,cy+r*.85);
-  cx.bezierCurveTo(c+r*0.85,cy+r*.85,c+r*1.05,cy+r*.3,c+r*.75,cy-r*.1);
-  cx.fill();
-  
-  // filament (glowing bright zigzag)
-  cx.shadowBlur=12;
-  cx.strokeStyle='#FFE89B';
-  cx.lineWidth=1.4;
-  cx.beginPath();
-  cx.moveTo(c-5,cy-r*.05);cx.lineTo(c-7,cy+r*.25);
-  cx.moveTo(c+5,cy-r*.05);cx.lineTo(c+7,cy+r*.25);
-  cx.stroke();
-  cx.beginPath();
-  cx.moveTo(c-7,cy+r*.25);
-  for(let i=0;i<7;i++){
-    cx.lineTo(c-7+i*(14/6),cy+r*.25+(i%2===0?-3:3));
+  cx.moveTo(c-baseW,baseTop);cx.lineTo(c+baseW,baseTop);
+  cx.lineTo(c+baseW*0.85,baseTop+r*0.18);cx.lineTo(c-baseW*0.85,baseTop+r*0.18);
+  cx.closePath();cx.stroke();
+  // Threading lines
+  for(let i=0;i<3;i++){
+    const ty=baseTop+r*0.06+i*(r*0.06);
+    const tw=baseW*(0.9-i*0.05);
+    cx.beginPath();
+    cx.moveTo(c-tw,ty);cx.lineTo(c+tw,ty);cx.stroke();
   }
-  cx.lineTo(c+7,cy+r*.25);
+  cx.restore();
+
+  // FILAMENT — bright glowing zigzag dangling from a small support inside the bulb
+  cx.save();
+  cx.shadowColor='rgba(255,245,180,.9)';cx.shadowBlur=12;
+  cx.strokeStyle='#FFF3B0';
+  cx.lineWidth=1.5;
+  // Two support wires coming down from the top of the bulb
+  cx.beginPath();
+  cx.moveTo(c-r*0.18,cy-r*0.55);cx.lineTo(c-r*0.18,cy);
+  cx.moveTo(c+r*0.18,cy-r*0.55);cx.lineTo(c+r*0.18,cy);
   cx.stroke();
-  cx.shadowBlur=0;
+  // Zigzag filament across the middle
+  cx.beginPath();
+  cx.moveTo(c-r*0.18,cy);
+  const steps=6,fw=r*0.36;
+  for(let i=1;i<=steps;i++){
+    const fx=c-r*0.18+(fw/steps)*i;
+    const fy=cy+(i%2===0?-r*0.06:r*0.06);
+    cx.lineTo(fx,fy);
+  }
+  cx.lineTo(c+r*0.18,cy);
+  cx.stroke();
+  cx.restore();
+
+  // hanging wire from above
+  cx.strokeStyle=COL.faint;cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(c,L.HEXIT+20);cx.lineTo(c,cy-fr*0.95);cx.stroke();
 }
 
-// ---------- BRAIN (smooth realistic oval, soft rounded edges) ----------
+// ---------- COGNITIVE CONTAINER (grid box method — matches Gemini concept) ----------
+// Replaces the older oval brain visualization. Items still drop into the same physics
+// rectangle defined by rebuildWalls(), but the visual is now a clean cyan-outlined
+// grid panel with faint inner gridlines, rounded corners, and edge glow.
+// Helper: build an organic brain silhouette path matching the play-area bounds.
+// Returns a function that calls cx.beginPath() + all the beziers so we can
+// reuse the same path for fill, stroke, and clip.
+function brainPath(){
+  const c=L.BCX,top=L.BT,bot=L.BB,hw=L.BHW,h=bot-top;
+  const cy=(top+bot)/2;
+  const bw=hw*2;
+  // Scale factors so the brain feels organic but stays inside its bounding box
+  const sx=hw,sy=h*0.5;
+  // All coords relative to (c, cy)
+  cx.beginPath();
+  // Start at left-mid
+  cx.moveTo(c-sx*0.92,cy-sy*0.05);
+  // Left frontal lobe — big bump up-left
+  cx.bezierCurveTo(c-sx*1.05,cy-sy*0.60, c-sx*0.70,cy-sy*1.05, c-sx*0.22,cy-sy*0.92);
+  // Top — slight dip at central sulcus then right frontal
+  cx.bezierCurveTo(c-sx*0.08,cy-sy*1.00, c+sx*0.08,cy-sy*1.00, c+sx*0.28,cy-sy*0.88);
+  // Right parietal-occipital (large top-right bump)
+  cx.bezierCurveTo(c+sx*0.80,cy-sy*0.82, c+sx*1.05,cy-sy*0.38, c+sx*0.92,cy+sy*0.10);
+  // Right temporal & cerebellum bump
+  cx.bezierCurveTo(c+sx*0.88,cy+sy*0.52, c+sx*0.60,cy+sy*0.72, c+sx*0.32,cy+sy*0.65);
+  // Brain stem hint at bottom center
+  cx.bezierCurveTo(c+sx*0.22,cy+sy*0.92, c-sx*0.22,cy+sy*0.92, c-sx*0.32,cy+sy*0.65);
+  // Left temporal & back to start
+  cx.bezierCurveTo(c-sx*0.60,cy+sy*0.72, c-sx*0.92,cy+sy*0.48, c-sx*0.92,cy-sy*0.05);
+  cx.closePath();
+}
+
 function drawBrain(){
   const c=L.BCX,top=L.BT,bot=L.BB,hw=L.BHW,h=bot-top;
   const cy=(top+bot)/2;
-  
-  // "COGNITIVE CONTAINER" label above brain (matches Gemini concept)
+  const sx=hw,sy=h*0.5;
+  const overloadCount=state.shapes.filter(s=>!s.dead&&s.kind==='neg').length;
+  const t=performance.now()*.001;
+  const isOverload=overloadCount>=10;
+
+  // --- Outer ambient glow ---
   cx.save();
-  cx.font='400 8px monospace';
-  cx.textAlign='center';
-  cx.fillStyle='rgba(180,220,255,.65)';
-  cx.shadowColor='rgba(79,195,247,.5)';
-  cx.shadowBlur=4;
-  cx.fillText('// COGNITIVE CONTAINER',c,top-12);
-  cx.shadowBlur=0;
+  const haloC=isOverload?'rgba(255,82,82,.14)':'rgba(79,195,247,.10)';
+  const haloG=cx.createRadialGradient(c,cy,sx*0.2,c,cy,sx*1.3);
+  haloG.addColorStop(0,haloC);haloG.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=haloG;
+  cx.fillRect(c-sx*1.4,cy-sy*1.2,sx*2.8,sy*2.4);
   cx.restore();
-  
-  cx.strokeStyle=COL.line;cx.lineWidth=1.6;
-  cx.lineJoin='round';
-  cx.lineCap='round';
-  
-  // EYES — top-down view: only a small portion of each eyeball protrudes
-  // through the front (top) of the brain. Drawn in same B&W line style as brain.
-  const eyeR=Math.min(hw*0.10,14);
-  // Eyes are EMBEDDED in the brain - center sits below the brain top edge
-  // so only the top sliver shows, like a half-buried sphere from above.
-  const eyeY=top+eyeR*0.65;  // most of the eye is inside the brain
-  const eyeLX=c-hw*0.32;
-  const eyeRX=c+hw*0.32;
-  // Very subtle gaze drift
-  const ttE=performance.now()*0.0008;
-  const pupilDX=Math.sin(ttE)*eyeR*0.12;
-  
-  // Each eye: a small arc + a curved pupil line, ONLY the top portion visible
-  function drawEyeDome(ex,ey){
-    // The visible portion is the top ~35% of the eye sphere
-    // Draw just the upper arc of the eye circle
-    cx.strokeStyle=COL.line;
-    cx.lineWidth=1.5;
-    cx.fillStyle='#000'; // matches background - eye interior is dark like brain
-    
-    // Top dome arc (from left horizon to right horizon, only top half)
-    cx.beginPath();
-    cx.arc(ex,ey,eyeR,Math.PI*1.15,Math.PI*1.85,false);
-    // close it with a flat bottom line where it meets the brain surface
-    cx.closePath();
-    cx.fill();
-    cx.stroke();
-    
-    // Small pupil dot at center top - represents gaze
-    cx.fillStyle=COL.line;
-    cx.beginPath();
-    cx.arc(ex+pupilDX,ey-eyeR*0.45,eyeR*0.18,0,Math.PI*2);
-    cx.fill();
-    
-    // Curved "iris ring" - just a faint arc indicating the iris boundary
-    cx.strokeStyle='rgba(255,255,255,.40)';
-    cx.lineWidth=0.8;
-    cx.beginPath();
-    cx.arc(ex,ey-eyeR*0.45,eyeR*0.42,Math.PI*1.1,Math.PI*1.9,false);
-    cx.stroke();
-  }
-  drawEyeDome(eyeLX,eyeY);
-  drawEyeDome(eyeRX,eyeY);
-  
-  // Brain outline
-  cx.strokeStyle=COL.line;cx.lineWidth=1.6;
-  cx.beginPath();
-  cx.ellipse(c,cy,hw,h*0.50,0,0,Math.PI*2);
-  cx.stroke();
-  
-  // Central fissure - subtle wavy line down the middle
-  cx.strokeStyle='rgba(255,255,255,.45)';
-  cx.lineWidth=1.4;
-  cx.beginPath();
-  cx.moveTo(c,top+10);
-  for(let yy=top+10;yy<bot-12;yy+=4){
-    const wob=Math.sin(yy*.06)*2;
-    cx.lineTo(c+wob,yy);
-  }
-  cx.stroke();
-  
-  // Soft inner gyri lines — gentle curves following oval contour
-  cx.strokeStyle='rgba(255,255,255,.18)';
-  cx.lineWidth=1;
-  const numRows=8;
-  for(let row=0;row<numRows;row++){
-    const t=row/(numRows-1);
-    const yy=top+h*0.15+t*(h*0.70);
-    const dy=yy-cy;
-    const xMax=Math.sqrt(Math.max(0,1-(dy*dy)/(h*0.5*h*0.5)))*hw;
-    // Left side gyri row
-    cx.beginPath();
-    for(let xx=c-xMax+10;xx<=c-6;xx+=3){
-      const wob=Math.sin(xx*0.18+row*0.7)*2.5;
-      if(xx===c-xMax+10)cx.moveTo(xx,yy+wob);
-      else cx.lineTo(xx,yy+wob);
-    }
-    cx.stroke();
-    // Right side gyri row
-    cx.beginPath();
-    for(let xx=c+6;xx<=c+xMax-10;xx+=3){
-      const wob=Math.sin(xx*0.18+row*0.7+1.5)*2.5;
-      if(xx===c+6)cx.moveTo(xx,yy+wob);
-      else cx.lineTo(xx,yy+wob);
-    }
-    cx.stroke();
-  }
-  
-  // WATER LEVEL inside brain - clipped to the oval
+
+  // --- Water fill clipped to brain shape ---
   const totalWater=state.hitWater+state.missWater*0.4;
   if(totalWater>0){
-    const wLevel=Math.min(1,totalWater);
-    const wy=bot-wLevel*(h-15);
     cx.save();
+    brainPath();cx.clip();
+    const wLevel=Math.min(1,totalWater);
+    // Water rises from bottom of brain bounds
+    const wy=cy+sy*0.92-wLevel*(sy*1.84-10);
+    const wg=cx.createLinearGradient(c,wy,c,cy+sy*0.92);
+    wg.addColorStop(0,'rgba(79,195,247,.28)');
+    wg.addColorStop(1,'rgba(30,100,180,.18)');
+    cx.fillStyle=wg;
+    cx.fillRect(c-sx,wy,sx*2,cy+sy*0.92-wy+10);
+    // Animated wavy surface
+    cx.strokeStyle='rgba(120,210,255,.90)';
+    cx.lineWidth=1.4;
+    cx.shadowColor='rgba(79,195,247,.7)';cx.shadowBlur=8;
     cx.beginPath();
-    cx.ellipse(c,cy,hw,h*0.50,0,0,Math.PI*2);
-    cx.clip();
-    cx.fillStyle='rgba(79,195,247,.22)';
-    cx.fillRect(c-hw-20,wy,hw*2+40,bot-wy+20);
-    cx.strokeStyle=COL.water;cx.lineWidth=1.2;
-    cx.beginPath();
-    const tt=performance.now()*.003;
-    for(let xx=c-hw-20;xx<=c+hw+20;xx+=3){
-      const yy=wy+Math.sin((xx+tt*60)*.06)*2;
-      xx===c-hw-20?cx.moveTo(xx,yy):cx.lineTo(xx,yy);
+    for(let xx=c-sx;xx<=c+sx;xx+=3){
+      const yy=wy+Math.sin((xx+t*60)*.055)*2.5;
+      xx===(Math.ceil(c-sx))?(cx.moveTo(xx,yy)):(cx.lineTo(xx,yy));
     }
     cx.stroke();
+    cx.shadowBlur=0;
+    cx.restore();
+  }
+
+  // --- Main brain outline ---
+  cx.save();
+  cx.shadowColor=isOverload?'rgba(255,82,82,.9)':'rgba(79,195,247,.65)';
+  cx.shadowBlur=isOverload?20:14;
+  cx.strokeStyle=isOverload
+    ?`rgba(255,${80+Math.sin(t*6)*40},82,${0.85+Math.sin(t*6)*0.15})`
+    :'rgba(140,205,255,.88)';
+  cx.lineWidth=2;
+  brainPath();
+  cx.stroke();
+  cx.restore();
+
+  // --- Central longitudinal fissure (hemisphere split) ---
+  cx.save();
+  cx.strokeStyle='rgba(100,170,230,.40)';
+  cx.lineWidth=1.2;
+  cx.setLineDash([4,5]);
+  cx.beginPath();
+  cx.moveTo(c,cy-sy*0.90);
+  cx.bezierCurveTo(c+sx*0.05,cy-sy*0.4, c-sx*0.05,cy+sy*0.1, c,cy+sy*0.60);
+  cx.stroke();
+  cx.setLineDash([]);
+  cx.restore();
+
+  // --- Gyri (brain folds) — 6 curved lines across hemispheres ---
+  cx.save();
+  cx.strokeStyle='rgba(100,180,240,.32)';
+  cx.lineWidth=1;
+  const gyri=[
+    // left hemisphere
+    [c-sx*0.72,cy-sy*0.55, c-sx*0.38,cy-sy*0.72, c-sx*0.08,cy-sy*0.55],
+    [c-sx*0.80,cy-sy*0.15, c-sx*0.42,cy-sy*0.30, c-sx*0.08,cy-sy*0.15],
+    [c-sx*0.76,cy+sy*0.22, c-sx*0.42,cy+sy*0.08, c-sx*0.08,cy+sy*0.22],
+    // right hemisphere
+    [c+sx*0.08,cy-sy*0.55, c+sx*0.38,cy-sy*0.72, c+sx*0.72,cy-sy*0.50],
+    [c+sx*0.08,cy-sy*0.15, c+sx*0.42,cy-sy*0.30, c+sx*0.80,cy-sy*0.12],
+    [c+sx*0.08,cy+sy*0.22, c+sx*0.42,cy+sy*0.08, c+sx*0.78,cy+sy*0.25],
+  ];
+  gyri.forEach(g=>{
+    cx.beginPath();cx.moveTo(g[0],g[1]);cx.quadraticCurveTo(g[2],g[3],g[4],g[5]);cx.stroke();
+  });
+  cx.restore();
+
+  // --- Overload: solid red stack rising from brain bottom ---
+  if(isOverload){
+    const stackH=Math.min(sy*0.7,(overloadCount-9)*0.08*sy);
+    const stackTop=cy+sy*0.92-stackH;
+    cx.save();
+    brainPath();cx.clip();
+    const sg=cx.createLinearGradient(c,stackTop,c,cy+sy*0.92);
+    sg.addColorStop(0,`rgba(255,60,60,${0.45+Math.sin(t*7)*0.15})`);
+    sg.addColorStop(0.5,'rgba(200,30,30,0.65)');
+    sg.addColorStop(1,'rgba(160,10,10,0.80)');
+    cx.fillStyle=sg;
+    cx.fillRect(c-sx,stackTop,sx*2,stackH+10);
+    // Glitch scan line through the stack
+    const glitchY=stackTop+Math.abs(Math.sin(t*11))*stackH;
+    cx.strokeStyle=`rgba(255,120,120,${0.6+Math.sin(t*9)*0.3})`;
+    cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(c-sx,glitchY);cx.lineTo(c+sx,glitchY);cx.stroke();
+    cx.restore();
+  }
+
+  // --- Overload indicator ---
+  if(isOverload){
+    cx.save();
+    cx.font='700 9px monospace';cx.textAlign='center';
+    cx.fillStyle=`rgba(255,100,100,${0.7+Math.sin(t*8)*0.3})`;
+    cx.shadowColor='rgba(255,60,60,.8)';cx.shadowBlur=10;
+    cx.fillText(`CORTEX OVERLOAD [${overloadCount}]`,c,cy+sy*0.92+16);
     cx.restore();
   }
 }
@@ -4171,13 +4445,20 @@ function drawChoice(){
   const cy=L.BY;
   state.choice.forEach(c=>{
     cx.globalAlpha=1-c.vanish;
-    const br=1+Math.sin(performance.now()*.003+c.x)*.06;
+    // Scale 1.35 so text is clearly readable without straining
+    const br=1.35+Math.sin(performance.now()*.003+c.x)*.06;
     drawWordBox(c.x,cy+L.BR*.3,c.word,c.kind,br);
     cx.globalAlpha=1;
   });
-  cx.fillStyle=COL.dim;cx.font='300 8px monospace';cx.textAlign='center';
-  cx.shadowBlur=0;
-  cx.fillText('tap one · then drag into brain',W/2,cy+L.BR*.3-40);
+  // Instruction text — brighter, larger, centered below the two words
+  cx.save();
+  cx.fillStyle='rgba(180,220,255,.80)';
+  cx.font='400 9px monospace';
+  cx.textAlign='center';
+  cx.shadowColor='rgba(79,195,247,.5)';
+  cx.shadowBlur=6;
+  cx.fillText('TAP · DRAG INTO BRAIN',W/2,cy+L.BR*.3-44);
+  cx.restore();
 }
 function drawDragWord(){
   if(state.phase!==PH.DRAG||!state.drag)return;
@@ -4188,6 +4469,49 @@ function drawDragWord(){
   cx.setLineDash([2,3]);
   cx.beginPath();cx.moveTo(W/2,L.BY+L.BR*.4);cx.lineTo(d.x,d.y);cx.stroke();
   cx.setLineDash([]);
+  // Ghost hand below the word — translucent pointing finger that follows the drag
+  drawDragHand(d.x,d.y+18);
+}
+
+// Stylized pointing hand drawn below the dragged word. The index finger reaches
+// up toward the word and the whole shape glows cyan, matching the Gemini concept.
+function drawDragHand(x,y){
+  cx.save();
+  cx.translate(x,y);
+  cx.shadowColor='rgba(120,200,255,.85)';
+  cx.shadowBlur=14;
+  cx.strokeStyle='rgba(200,230,255,.9)';
+  cx.fillStyle='rgba(120,180,240,.18)';
+  cx.lineWidth=1.5;
+  cx.lineJoin='round';
+  cx.beginPath();
+  // Index finger (pointing up toward the word)
+  cx.moveTo(-3,2);
+  cx.lineTo(-3,-14);
+  cx.quadraticCurveTo(-3,-19,1,-19);
+  cx.quadraticCurveTo(5,-19,5,-14);
+  cx.lineTo(5,0);
+  // Middle finger knuckle bump
+  cx.quadraticCurveTo(9,-1,11,3);
+  cx.quadraticCurveTo(12,7,11,11);
+  // Ring/pinky bumps
+  cx.quadraticCurveTo(14,12,14,16);
+  cx.quadraticCurveTo(14,22,9,24);
+  // Wrist
+  cx.lineTo(-7,24);
+  cx.quadraticCurveTo(-12,24,-12,18);
+  cx.lineTo(-12,8);
+  // Thumb
+  cx.quadraticCurveTo(-12,2,-9,0);
+  cx.lineTo(-6,2);
+  cx.closePath();
+  cx.fill();cx.stroke();
+  // Inner highlight line on the index finger (gives a wire-frame feel)
+  cx.beginPath();
+  cx.strokeStyle='rgba(220,240,255,.55)';
+  cx.lineWidth=1;
+  cx.moveTo(1,-17);cx.lineTo(1,-2);cx.stroke();
+  cx.restore();
 }
 function drawShapes(){
   // Pre-pass: paint a soft bloom halo behind each shape (additive blend)
@@ -4286,6 +4610,43 @@ function drawFx(){
       cx.beginPath();cx.arc(e.x,e.y,e.r,0,Math.PI*2);cx.stroke();
       cx.beginPath();cx.arc(e.x,e.y,e.r*0.6,0,Math.PI*2);cx.stroke();
       cx.shadowBlur=0;
+    }else if(e.type==='zap'){
+      // Lightning beam from bulb to a doomed negative — bright jagged path
+      // with a yellow core and a wider white-hot glow, fading over its lifetime.
+      const a=Math.max(0,e.life/(e.maxLife||520));
+      const segs=e.segments||[];
+      if(segs.length<2)return;
+      // Re-jitter every frame for that electric crackle feel
+      const jittered=segs.map((p,idx)=>{
+        if(idx===0||idx===segs.length-1)return p;
+        return {x:p.x+(Math.random()-0.5)*4,y:p.y+(Math.random()-0.5)*4};
+      });
+      // Outer glow pass
+      cx.save();
+      cx.globalCompositeOperation='lighter';
+      cx.shadowColor='rgba(255,230,120,1)';cx.shadowBlur=22;
+      cx.strokeStyle=`rgba(255,220,120,${0.55*a})`;
+      cx.lineWidth=6;
+      cx.lineCap='round';cx.lineJoin='round';
+      cx.beginPath();
+      jittered.forEach((p,idx)=>idx===0?cx.moveTo(p.x,p.y):cx.lineTo(p.x,p.y));
+      cx.stroke();
+      // Bright inner core
+      cx.shadowColor='rgba(255,255,255,1)';cx.shadowBlur=12;
+      cx.strokeStyle=`rgba(255,255,255,${0.95*a})`;
+      cx.lineWidth=1.8;
+      cx.beginPath();
+      jittered.forEach((p,idx)=>idx===0?cx.moveTo(p.x,p.y):cx.lineTo(p.x,p.y));
+      cx.stroke();
+      // Small impact flash at the target end
+      const tip=jittered[jittered.length-1];
+      const flashG=cx.createRadialGradient(tip.x,tip.y,0,tip.x,tip.y,28);
+      flashG.addColorStop(0,`rgba(255,255,200,${0.7*a})`);
+      flashG.addColorStop(0.4,`rgba(255,220,120,${0.35*a})`);
+      flashG.addColorStop(1,'rgba(255,200,80,0)');
+      cx.fillStyle=flashG;
+      cx.fillRect(tip.x-30,tip.y-30,60,60);
+      cx.restore();
     }
   });
   cx.globalAlpha=1;
@@ -4302,6 +4663,11 @@ function loop(now){
     if(Math.abs(cam.vy)<0.1)cam.vy=0;
     clampCam();
   }
+  // Decay burnout shake and intensity each frame during/after FULL
+  if(state.burnoutShake>0)state.burnoutShake=Math.max(0,state.burnoutShake-0.018);
+  if(state.burnoutIntensity>0&&state.phase!==PH.FULL)state.burnoutIntensity=Math.max(0,state.burnoutIntensity-0.012);
+  // Decay brain shake quickly (it's a fast red pulse, not a sustained effect)
+  if(state.brainShake>0)state.brainShake=Math.max(0,state.brainShake-0.045);
   if(state.phase!==PH.INTRO&&state.phase!==PH.FULL){
     Engine.update(eng,dt);
     tickForces(dt);
@@ -4309,7 +4675,10 @@ function loop(now){
     tickFx(dt);
   }
   bg();
-  cx.save();cx.translate(0,-cam.y);
+  // Compute screen-shake offset (random jitter scaled by burnoutShake)
+  const shakeX=state.burnoutShake>0?(Math.random()-0.5)*18*state.burnoutShake:0;
+  const shakeY=state.burnoutShake>0?(Math.random()-0.5)*18*state.burnoutShake:0;
+  cx.save();cx.translate(shakeX,shakeY-cam.y);
   if(state.phase!==PH.INTRO){
     drawHousing();
     drawFalling();
@@ -4333,10 +4702,37 @@ function loop(now){
     cx.restore();
     state.screenPulse=Math.max(0,state.screenPulse-0.04);
   }
+  // Burnout red overlay — saturating vignette + corner glitch bands.
+  // Plays whenever burnoutIntensity > 0 (peaks during FULL, decays after).
+  if(state.burnoutIntensity>0){
+    const bi=state.burnoutIntensity;
+    cx.save();
+    // Hot red vignette from edges inward
+    const vg=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.25,W/2,H/2,Math.max(W,H)*0.75);
+    vg.addColorStop(0,`rgba(255,40,40,${0.04*bi})`);
+    vg.addColorStop(0.55,`rgba(255,30,30,${0.18*bi})`);
+    vg.addColorStop(1,`rgba(180,10,10,${0.42*bi})`);
+    cx.fillStyle=vg;cx.fillRect(0,0,W,H);
+    // Top / bottom red glitch bands at peak intensity
+    if(bi>0.4){
+      cx.globalCompositeOperation='lighter';
+      cx.fillStyle=`rgba(255,40,40,${0.12*bi})`;
+      const bandH=8+Math.random()*16;
+      const bandY=Math.random()*H;
+      cx.fillRect(0,bandY,W,bandH);
+      cx.fillRect(0,H-bandY-bandH,W,bandH);
+    }
+    cx.restore();
+  }
   // Subtle scanline overlay (retro-cyberpunk vibe - matches Gemini concept)
   if(state.phase!==PH.INTRO)drawScanlines();
+  // Music-reactive audio waveform (screen space, after cam restore)
+  if(state.phase!==PH.INTRO)drawAudioWave();
   // Screen-space HUD overlays (decorative cyberpunk panels — fixed in screen space)
   if(state.phase!==PH.INTRO)drawScreenHUD();
+  // Music-reactive flow bar glow — sampled and applied each frame
+  sampleAudioLevel();
+  applyMusicVisuals();
   requestAnimationFrame(loop);
 }
 
@@ -4369,20 +4765,89 @@ function drawScreenHUD(){
   cx.shadowColor='rgba(79,195,247,.6)';
   cx.shadowBlur=4;
 
-  // LEFT-SIDE: radar circle
-  const rx=22,ry=H*0.45,rr=18;
+  // LEFT-SIDE: Brain icon — scanner circle + clean walnut-silhouette brain
+  // Shake offset: when a negative is placed the brain jolts left/right briefly
+  const _bShk=state.brainShake||0;
+  const _bShkX=_bShk>0?(Math.random()-0.5)*8*_bShk:0;
+  const _bShkY=_bShk>0?(Math.random()-0.5)*4*_bShk:0;
+  const rx=26+_bShkX,ry=H*0.44+_bShkY,rr=24;
+  const liveNegsHUD=state.shapes.filter(s=>!s.dead&&s.kind==='neg').length;
+  const hudOvld=liveNegsHUD>=10;
+  const hudHit=_bShk>0.2; // flash red on any new negative, fades quickly
+  const hudRed=hudOvld||hudHit;
+  const brainPulse=hudOvld?(0.85+Math.sin(t*7)*0.15):hudHit?(0.7+_bShk*0.3):1;
+  // Outer circular scanner frame — cyan normally, red on hit or overload
+  cx.strokeStyle=hudRed?`rgba(255,${hudOvld?80:120},82,${(hudOvld?0.5:_bShk*0.9)+Math.sin(t*6)*0.1})`:'rgba(79,195,247,.4)';
+  cx.lineWidth=hudRed?1.8:1.2;
+  cx.shadowColor=hudRed?'rgba(255,60,60,.7)':'rgba(79,195,247,.3)';
+  cx.shadowBlur=hudRed?12:4;
   cx.beginPath();cx.arc(rx,ry,rr,0,Math.PI*2);cx.stroke();
-  cx.beginPath();cx.arc(rx,ry,rr*0.6,0,Math.PI*2);cx.stroke();
-  // Sweeping radar line
-  const sweep=t*1.4;
-  cx.beginPath();cx.moveTo(rx,ry);
-  cx.lineTo(rx+Math.cos(sweep)*rr,ry+Math.sin(sweep)*rr);
-  cx.stroke();
+  cx.shadowBlur=4;
+  // Rotating sweep arc
+  cx.strokeStyle=hudOvld?'rgba(255,120,120,.85)':'rgba(120,210,255,.85)';
+  cx.lineWidth=1.6;
+  const sweep=t*0.9;
+  cx.beginPath();cx.arc(rx,ry,rr*0.94,sweep,sweep+0.7);cx.stroke();
+  // ——— Classic walnut brain silhouette ———
+  cx.save();
+  cx.translate(rx,ry);
+  const bs=rr*0.80;
+  cx.shadowColor=hudRed?'rgba(255,70,70,.9)':'rgba(79,195,247,.7)';
+  cx.shadowBlur=8;
+  cx.fillStyle=hudRed?'rgba(100,8,8,.80)':'rgba(18,55,105,.80)';
+  cx.strokeStyle=hudRed?`rgba(255,90,90,${brainPulse})`:'rgba(145,215,255,.98)';
+  cx.lineWidth=1.6;
+  // Fill pass
+  cx.beginPath();
+  cx.moveTo(-bs*0.16,bs*0.84);
+  cx.bezierCurveTo(-bs*0.22,bs*1.0,-bs*0.70,bs*0.80,-bs*0.96,bs*0.24);
+  cx.bezierCurveTo(-bs*1.10,-bs*0.06,-bs*1.05,-bs*0.78,-bs*0.66,-bs*0.98);
+  cx.bezierCurveTo(-bs*0.44,-bs*1.10,-bs*0.14,-bs*1.12,0,-bs*1.08);
+  cx.bezierCurveTo(bs*0.14,-bs*1.12,bs*0.44,-bs*1.10,bs*0.66,-bs*0.98);
+  cx.bezierCurveTo(bs*1.05,-bs*0.78,bs*1.10,-bs*0.06,bs*0.96,bs*0.24);
+  cx.bezierCurveTo(bs*0.70,bs*0.80,bs*0.22,bs*1.0,bs*0.16,bs*0.84);
+  cx.bezierCurveTo(bs*0.11,bs*0.96,-bs*0.11,bs*0.96,-bs*0.16,bs*0.84);
+  cx.closePath();cx.fill();
+  // Cerebellum bump lower-back
+  cx.fillStyle=hudRed?'rgba(140,8,8,.80)':'rgba(22,65,120,.82)';
+  cx.beginPath();cx.ellipse(bs*0.50,bs*0.54,bs*0.28,bs*0.17,0.25,0,Math.PI*2);cx.fill();
+  // Stroke main outline
+  cx.beginPath();
+  cx.moveTo(-bs*0.16,bs*0.84);
+  cx.bezierCurveTo(-bs*0.22,bs*1.0,-bs*0.70,bs*0.80,-bs*0.96,bs*0.24);
+  cx.bezierCurveTo(-bs*1.10,-bs*0.06,-bs*1.05,-bs*0.78,-bs*0.66,-bs*0.98);
+  cx.bezierCurveTo(-bs*0.44,-bs*1.10,-bs*0.14,-bs*1.12,0,-bs*1.08);
+  cx.bezierCurveTo(bs*0.14,-bs*1.12,bs*0.44,-bs*1.10,bs*0.66,-bs*0.98);
+  cx.bezierCurveTo(bs*1.05,-bs*0.78,bs*1.10,-bs*0.06,bs*0.96,bs*0.24);
+  cx.bezierCurveTo(bs*0.70,bs*0.80,bs*0.22,bs*1.0,bs*0.16,bs*0.84);
+  cx.bezierCurveTo(bs*0.11,bs*0.96,-bs*0.11,bs*0.96,-bs*0.16,bs*0.84);
+  cx.closePath();cx.stroke();
+  // Cerebellum stroke + fold line
+  cx.strokeStyle=hudRed?`rgba(255,100,100,${brainPulse})`:'rgba(145,215,255,.90)';
+  cx.lineWidth=1.1;
+  cx.beginPath();cx.ellipse(bs*0.50,bs*0.54,bs*0.28,bs*0.17,0.25,0,Math.PI*2);cx.stroke();
+  cx.beginPath();cx.moveTo(bs*0.25,bs*0.48);cx.quadraticCurveTo(bs*0.50,bs*0.42,bs*0.74,bs*0.52);cx.stroke();
   cx.shadowBlur=0;
-  cx.fillText('WIRESE 2',rx-18,ry+rr+10);
-  // Percentage readout
-  const radarPct=Math.floor(50+Math.sin(t*.5)*15);
-  cx.fillText(radarPct+'%',rx-8,ry+rr+18);
+  // Central fissure — dashed walnut-split from top notch downward
+  cx.strokeStyle='rgba(90,165,230,.55)';cx.lineWidth=0.9;cx.setLineDash([2,4]);
+  cx.beginPath();cx.moveTo(0,-bs*1.08);cx.bezierCurveTo(bs*0.05,-bs*0.55,-bs*0.05,bs*0.0,0,bs*0.52);cx.stroke();cx.setLineDash([]);
+  // Gyri — 3 each hemisphere
+  const gyCol=hudRed?'rgba(255,150,150,.60)':'rgba(120,200,255,.62)';
+  cx.strokeStyle=gyCol;cx.lineWidth=0.85;
+  cx.beginPath();cx.moveTo(-bs*0.82,-bs*0.62);cx.quadraticCurveTo(-bs*0.46,-bs*0.82,-bs*0.06,-bs*0.64);cx.stroke();
+  cx.beginPath();cx.moveTo(-bs*0.90,-bs*0.24);cx.quadraticCurveTo(-bs*0.50,-bs*0.42,-bs*0.06,-bs*0.24);cx.stroke();
+  cx.beginPath();cx.moveTo(-bs*0.84,bs*0.14);cx.quadraticCurveTo(-bs*0.46,bs*0.02,-bs*0.06,bs*0.14);cx.stroke();
+  cx.beginPath();cx.moveTo(bs*0.06,-bs*0.64);cx.quadraticCurveTo(bs*0.46,-bs*0.82,bs*0.82,-bs*0.60);cx.stroke();
+  cx.beginPath();cx.moveTo(bs*0.06,-bs*0.24);cx.quadraticCurveTo(bs*0.50,-bs*0.42,bs*0.90,-bs*0.22);cx.stroke();
+  cx.beginPath();cx.moveTo(bs*0.06,bs*0.14);cx.quadraticCurveTo(bs*0.46,bs*0.02,bs*0.84,bs*0.16);cx.stroke();
+  cx.restore();
+  cx.shadowBlur=0;
+  cx.fillStyle=hudRed?'rgba(255,140,140,.80)':'rgba(180,220,255,.55)';
+  cx.font='400 7px monospace';cx.textAlign='left';
+  cx.fillText(hudOvld?'⚠ OVERLOAD':hudHit?'⚠ HIT':'NEURAL SCAN',rx-24,ry+rr+10);
+  const radarPct=Math.min(100,Math.round(state.flow*100));
+  cx.fillStyle='#4FC3F7';
+  cx.fillText(radarPct+'% ACTIVE',rx-22,ry+rr+18);
 
   // LEFT-SIDE: vertical mini-chart
   const cy=H*0.62,ch=50;
@@ -4528,8 +4993,25 @@ function onUp(e){
   
   if(state.drag){
     const d=state.drag;
-    // Normal spawn at drop position - no resizing
-    spawnShape(d.word,d.x,d.y,d.vx,d.vy);
+    // Clamp drop position to inside the brain container.
+    // If the player drops WAY outside (more than 60px beyond edge), cancel the drag
+    // and return the word to the choice pool so the game doesn't break.
+    const worldY=d.y; // already in world coords
+    const padX=60, padY=60;
+    const tooFarX=d.x < L.BCX-L.BHW-padX || d.x > L.BCX+L.BHW+padX;
+    const tooFarY=worldY < L.BT-padY || worldY > L.BB+padY;
+    if(tooFarX||tooFarY){
+      // Cancel drag — put the word back as a choice item
+      state.choice=[{word:d.word,kind:d.kind,x:W/2,y:L.BY,vanish:0}];
+      state.phase=PH.CHOICE;state.t=0;
+      state.drag=null;
+      updHUD();
+      return;
+    }
+    // Clamp X and Y to inside brain bounds
+    const cx2=Math.max(L.BCX-L.BHW+16, Math.min(L.BCX+L.BHW-16, d.x));
+    const cy2=Math.max(L.BT+10,         Math.min(L.BB-10,         worldY));
+    spawnShape(d.word,cx2,cy2,d.vx,d.vy);
     state.drag=null;
     state.phase=PH.SETTLE;state.t=0;
     updHUD();
@@ -4552,6 +5034,9 @@ window.addEventListener('touchcancel',onUp,{passive:false});
 // ---------- Brain full ----------
 function triggerFull(){
   state.phase=PH.FULL;
+  // Kick off burnout cinematic: red saturation ramps up, screen shakes hard then decays.
+  state.burnoutIntensity=1;
+  state.burnoutShake=1;
   // Save progress - flow state reached for this category
   // (only when reaching by clearing, not by overflow)
   if(state.flow>=1)markCategoryCleared(state.category);
@@ -4583,7 +5068,7 @@ document.getElementById('over').addEventListener('click',()=>{
   // Reset full state
   document.getElementById('over').classList.remove('show');
   state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
-  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;state.positiveStreak=0;state.zapPending=false;state.procBonus=false;state.brainShake=0;
   cam.y=0;cam.vy=0;
   document.getElementById('intro').classList.remove('gone');
   document.getElementById('menuBtn').classList.remove('show');
@@ -4612,7 +5097,7 @@ document.querySelectorAll('.gallery-frame[data-cat]').forEach(btn=>{
 function returnHome(){
   // Reset everything and show intro (gallery wall, not boot screen)
   state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
-  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;state.positiveStreak=0;state.zapPending=false;state.procBonus=false;state.brainShake=0;
   state.falling=[];state.choice=[];state.drag=null;state.housing=[];
   cam.y=0;cam.vy=0;
   state.phase=PH.INTRO;
@@ -4627,7 +5112,7 @@ function returnHome(){
 function restartCategory(){
   // Empty the brain but keep the current category
   state.shapes.forEach(s=>{if(!s.dead)Composite.remove(eng.world,s.body);});
-  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;
+  state.shapes=[];state.fx=[];state.flow=0;state.hitWater=0;state.missWater=0;state.positiveStreak=0;state.zapPending=false;state.procBonus=false;state.brainShake=0;
   state.falling=[];state.choice=[];state.drag=null;
   cam.y=0;cam.vy=0;
   document.getElementById('over').classList.remove('show');
@@ -4672,12 +5157,258 @@ document.getElementById('menuPopup').addEventListener('click',(e)=>{
 
 // ---------- Background music engine ----------
 // To add more tracks: drop files into www/audio/ and add their paths to TRACKS.
-// They'll auto-rotate (current track ends → next track plays → loop back to first).
-const TRACKS=['audio/track1.mp3','audio/track2.mp3'];
+// If the files can't be found (standalone HTML without the audio/ folder),
+// the game automatically falls back to a procedural ambient soundtrack.
+const TRACKS=['audio/forest_gump.mp3','audio/janet.mp3'];
 
 const bgMusic=document.getElementById('bgMusic');
 let currentTrackIdx=0;
 let musicStarted=false;
+let proceduralMode=false; // true when we've switched to generated music
+
+// ---------- Web Audio analyser (for music-reactive flow bar) ----------
+let audioCtx=null,audioAnalyser=null,audioBuf=null;
+let audioLevel=0;
+
+function setupAudioAnalyser(){
+  if(audioCtx)return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    audioCtx=new AC();
+    const src=audioCtx.createMediaElementSource(bgMusic);
+    audioAnalyser=audioCtx.createAnalyser();
+    audioAnalyser.fftSize=128;
+    audioAnalyser.smoothingTimeConstant=0.78;
+    src.connect(audioAnalyser);
+    audioAnalyser.connect(audioCtx.destination);
+    audioBuf=new Uint8Array(audioAnalyser.frequencyBinCount);
+  }catch(e){
+    console.warn('Audio analyser unavailable:',e);
+  }
+}
+
+// ---------- Procedural ambient fallback (plays when MP3 files are missing) ----------
+// Vaporwave pad: 4-note chords, sine waves, slow cross-fade, tremolo LFO.
+// Feeds directly into the same analyser so music-reactive visuals still work.
+let _procCtx=null,_procAnalyser=null,_procBuf=null;
+let _procOscs=[],_procInterval=null;
+
+// Chord progression: Fmaj7 → Dmin7 → Bbmaj7 → Cmaj7 (cycle every 5s)
+const _CHORDS=[
+  [87.31,130.81,164.81,220.00],  // F2–C3–E3–A3  (Fmaj7)
+  [73.42,110.00,130.81,174.61],  // D2–A2–C3–F3  (Dmin7)
+  [58.27,116.54,146.83,174.61],  // Bb1–Bb2–D3–F3 (Bbmaj7)
+  [65.41, 98.00,164.81,196.00],  // C2–G2–E3–G3  (Cmaj7)
+];
+let _chordIdx=0;
+
+function _startProceduralMusic(){
+  if(_procCtx)return;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  proceduralMode=true;
+  _procCtx=new AC();
+
+  // Master chain: oscillators → gain → analyser → destination
+  const master=_procCtx.createGain();
+  master.gain.value=0; // fade in
+  master.gain.linearRampToValueAtTime(0.22, _procCtx.currentTime+2.5);
+
+  // Warm low-pass filter
+  const lpf=_procCtx.createBiquadFilter();
+  lpf.type='lowpass'; lpf.frequency.value=640; lpf.Q.value=0.6;
+
+  // Tremolo LFO (slow 0.25 Hz wobble for that vaporwave feel)
+  const lfo=_procCtx.createOscillator();
+  const lfoGain=_procCtx.createGain();
+  lfo.frequency.value=0.25; lfo.type='sine';
+  lfoGain.gain.value=0.08;
+  lfo.connect(lfoGain); lfo.start();
+
+  // Analyser (so audioLevel reads from procedural music too)
+  _procAnalyser=_procCtx.createAnalyser();
+  _procAnalyser.fftSize=128;
+  _procAnalyser.smoothingTimeConstant=0.78;
+  _procBuf=new Uint8Array(_procAnalyser.frequencyBinCount);
+
+  lpf.connect(master);
+  lfoGain.connect(master.gain);
+  master.connect(_procAnalyser);
+  _procAnalyser.connect(_procCtx.destination);
+
+  function playChord(freqs){
+    // Fade out previous
+    _procOscs.forEach(({o,g})=>{
+      g.gain.setTargetAtTime(0,_procCtx.currentTime,0.6);
+      o.stop(_procCtx.currentTime+3);
+    });
+    _procOscs=[];
+    // Fade in new
+    freqs.forEach((freq,i)=>{
+      const o=_procCtx.createOscillator();
+      const g=_procCtx.createGain();
+      o.type='sine';
+      o.frequency.value=freq;
+      o.detune.value=(Math.random()-0.5)*10; // subtle detune for thickness
+      g.gain.value=0;
+      g.gain.setTargetAtTime(0.28/(freqs.length), _procCtx.currentTime, 1.4);
+      o.connect(g); g.connect(lpf);
+      o.start(); _procOscs.push({o,g});
+      // Add a gentle 2nd harmonic at lower volume for richness
+      const o2=_procCtx.createOscillator();
+      const g2=_procCtx.createGain();
+      o2.type='sine'; o2.frequency.value=freq*2; o2.detune.value=6;
+      g2.gain.value=0;
+      g2.gain.setTargetAtTime(0.06/(freqs.length), _procCtx.currentTime, 2.0);
+      o2.connect(g2); g2.connect(lpf);
+      o2.start(); _procOscs.push({o:o2,g:g2});
+    });
+  }
+
+  playChord(_CHORDS[_chordIdx]);
+  _procInterval=setInterval(()=>{
+    _chordIdx=(_chordIdx+1)%_CHORDS.length;
+    playChord(_CHORDS[_chordIdx]);
+  },5200);
+
+  musicStarted=true;
+  console.log('Procedural ambient music started (MP3 files not found)');
+}
+
+// Override sampleAudioLevel to also read from procedural analyser
+const _origSample=typeof sampleAudioLevel!=='undefined'?null:null; // placeholder
+function _sampleProcLevel(){
+  if(!_procAnalyser||!_procBuf)return;
+  _procAnalyser.getByteFrequencyData(_procBuf);
+  let sum=0,wsum=0;
+  for(let i=0;i<_procBuf.length;i++){
+    const w=i<_procBuf.length/2?1.4:0.6;
+    sum+=_procBuf[i]*w; wsum+=w;
+  }
+  const raw=sum/(wsum*255);
+  audioLevel=audioLevel*0.55+raw*0.45;
+}
+
+// Detect audio file load failure → switch to procedural
+bgMusic.addEventListener('error',()=>{
+  if(!musicStarted&&audioSettings.enabled){
+    console.warn('MP3 files not found, switching to procedural music');
+    // Will start on first user interaction (audio context needs a gesture)
+    proceduralMode=true; // flag it now so tryStartMusic routes correctly
+  }
+});
+// Also catch stalled / empty src situations
+bgMusic.addEventListener('stalled',()=>{
+  if(!musicStarted) setTimeout(()=>{ if(!musicStarted) proceduralMode=true; },2000);
+});
+
+// Proactively test if the first track actually exists using a HEAD request
+// If it 404s immediately set proceduralMode so the first tap starts synth music
+fetch(TRACKS[0],{method:'HEAD'}).catch(()=>{
+  proceduralMode=true;
+});
+function sampleAudioLevel(){
+  // Route to procedural analyser when in fallback mode
+  if(proceduralMode){ _sampleProcLevel(); return; }
+  if(!audioAnalyser||!audioBuf)return;
+  audioAnalyser.getByteFrequencyData(audioBuf);
+  let sum=0,wsum=0;
+  for(let i=0;i<audioBuf.length;i++){
+    const w=i<audioBuf.length/2?1.4:0.6;
+    sum+=audioBuf[i]*w;wsum+=w;
+  }
+  const raw=sum/(wsum*255);
+  audioLevel=audioLevel*0.6+raw*0.4;
+}
+// Apply the current audio level to the flow bar AND the neural background.
+// More dramatic music-lock: bar pulses hot (cyan→magenta→white at peaks),
+// neurons glow brighter and connection threshold expands on beat, brain outline
+// breathes with the music.
+let _audioNeuronBoost=0; // shared with bg() to pulse connections
+function applyMusicVisuals(){
+  const fillEl=document.getElementById('fill');
+  if(!fillEl)return;
+  const lvl=audioLevel;
+  // Hard-clamp a "beat" value — spikes to 1 on loud transients, decays
+  _audioNeuronBoost=Math.max(_audioNeuronBoost*0.88, lvl*1.4);
+
+  // Color chain: cyan → violet → white as level rises
+  let r,g,b;
+  if(lvl<0.45){
+    // cyan → violet
+    const p=lvl/0.45;
+    r=Math.round(79+p*120);   // 79→199
+    g=Math.round(195-p*80);   // 195→115
+    b=Math.round(247-p*10);   // 247→237
+  }else{
+    // violet → near-white
+    const p=(lvl-0.45)/0.55;
+    r=Math.round(199+p*56);   // 199→255
+    g=Math.round(115+p*130);  // 115→245
+    b=Math.round(237+p*18);   // 237→255
+  }
+  const col=`rgb(${r},${g},${b})`;
+
+  // Glow massively stronger at high levels
+  const glow=8+lvl*80;
+  const haloA=0.15+lvl*0.85;
+  const bloom=lvl>0.6?` 0 0 ${glow*6}px rgba(${r},${g},${b},${(lvl-0.6)*0.9}),`:' ';
+  fillEl.style.background=`linear-gradient(90deg,${col},rgba(${Math.min(255,r+30)},${Math.min(255,g+30)},${b},0.9))`;
+  fillEl.style.boxShadow=
+    `0 0 ${glow}px ${col},`+
+    `0 0 ${glow*2.5}px rgba(${r},${g},${b},${haloA*0.55}),`+
+    `0 0 ${glow*5}px rgba(${r},${g},${b},${haloA*0.22}),`+
+    bloom+
+    `inset 0 0 ${4+lvl*8}px rgba(255,255,255,${0.08+lvl*0.18})`;
+  fillEl.style.filter=`brightness(${1+lvl*0.9}) saturate(${1+lvl*0.90}) contrast(${1+lvl*0.2})`;
+
+  // Height pulse — bar breathes with the music
+  const barH=3+Math.round(lvl*9);
+  const barEl=document.getElementById('bar');
+  if(barEl){barEl.style.height=barH+'px';}
+
+  // Push neural background neurons to glow with the beat
+  if(lvl>0.35&&bgNeurons.length){
+    const boost=_audioNeuronBoost;
+    // Boost a random subset each frame rather than all at once (looks more organic)
+    const n=Math.ceil(bgNeurons.length*boost*0.4);
+    for(let i=0;i<n;i++){
+      const idx=Math.floor(Math.random()*bgNeurons.length);
+      bgNeurons[idx].glow=Math.min(0.9,bgNeurons[idx].glow+boost*0.5);
+    }
+  }
+
+  // Canvas-side mini waveform (stored for drawAudioWave())
+  _audioWaveLvl=lvl;
+}
+let _audioWaveLvl=0;
+// Called from loop() in screen space (no cam transform)
+function drawAudioWave(){
+  if(!audioAnalyser||!audioBuf)return;
+  audioAnalyser.getByteFrequencyData(audioBuf);
+  const barY=H-28; // just above the bottom HUD area
+  const barW=W*0.55;
+  const barX=(W-barW)/2;
+  const bins=Math.min(32,audioBuf.length);
+  const bw=barW/bins;
+  const lvl=_audioWaveLvl;
+  const r=Math.round(79+lvl*176),g=Math.round(195-lvl*45),b=Math.round(247-lvl*90);
+  cx.save();
+  cx.globalAlpha=0.65+lvl*0.35;
+  cx.shadowColor=`rgb(${r},${g},${b})`;
+  cx.shadowBlur=8+lvl*12;
+  for(let i=0;i<bins;i++){
+    const val=audioBuf[i]/255;
+    const bh=Math.max(2,val*22);
+    const grd=cx.createLinearGradient(0,barY-bh,0,barY);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${0.9})`);
+    grd.addColorStop(1,`rgba(${r},${g},${b},0.1)`);
+    cx.fillStyle=grd;
+    cx.fillRect(barX+i*bw+1,barY-bh,bw-2,bh);
+  }
+  cx.restore();
+}
 
 // Load persisted settings (or set defaults)
 function loadAudioSettings(){
@@ -4707,8 +5438,19 @@ if(TRACKS.length>1)bgMusic.loop=false;
 // Browsers block autoplay until first user gesture - start music on first interaction
 function tryStartMusic(){
   if(musicStarted||!audioSettings.enabled)return;
-  bgMusic.play().then(()=>{musicStarted=true;}).catch(()=>{
-    // User may need to enable in settings; that's fine, will try again next gesture
+  if(proceduralMode){ 
+    // Flagged as no-MP3 — start synth music on first user gesture
+    if(!_procCtx) _startProceduralMusic();
+    else if(_procCtx.state==='suspended')_procCtx.resume().catch(()=>{});
+    return;
+  }
+  setupAudioAnalyser();
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  bgMusic.play().then(()=>{
+    musicStarted=true;
+  }).catch(()=>{
+    // File load likely failed — start procedural fallback
+    if(!proceduralMode&&audioSettings.enabled) _startProceduralMusic();
   });
 }
 // Hook into first tap anywhere
@@ -4747,9 +5489,14 @@ musicToggle.addEventListener('change',()=>{
   musicStateLabel.textContent=audioSettings.enabled?'on':'off';
   saveAudioSettings(audioSettings);
   if(audioSettings.enabled){
-    bgMusic.play().then(()=>{musicStarted=true;}).catch(()=>{});
+    if(proceduralMode){
+      if(_procCtx)_procCtx.resume().catch(()=>{});
+    }else{
+      bgMusic.play().then(()=>{musicStarted=true;}).catch(()=>{ _startProceduralMusic(); });
+    }
   }else{
-    bgMusic.pause();
+    if(proceduralMode){ if(_procCtx)_procCtx.suspend().catch(()=>{}); }
+    else bgMusic.pause();
   }
 });
 // Volume slider
@@ -4763,12 +5510,70 @@ volumeSlider.addEventListener('input',()=>{
 
 // Pause music when tab is hidden (saves battery, respects user)
 document.addEventListener('visibilitychange',()=>{
+  if(proceduralMode){
+    if(_procCtx){
+      if(document.hidden) _procCtx.suspend().catch(()=>{});
+      else _procCtx.resume().catch(()=>{});
+    }
+    return;
+  }
   if(document.hidden){
     if(!bgMusic.paused)bgMusic.pause();
   }else if(audioSettings.enabled&&musicStarted){
     bgMusic.play().catch(()=>{});
   }
 });
+
+
+// ---------- PROCRASTINATE button ----------
+// "Kicking the can down the road" — clears 2 of the heaviest existing negatives
+// but immediately spawns 5 new ones falling into the brain. Net cost: +3 thoughts.
+// Disabled briefly after each press to prevent spam.
+const PROC_COOLDOWN_MS=2500;
+function procrastinate(){
+  if(state.procCooldown>0)return;
+  if(state.phase===PH.INTRO||state.phase===PH.FULL)return;
+  // 1) Find the 2 largest existing negatives by physics body area (proxy for "big ones")
+  const lives=state.shapes.filter(s=>!s.dead&&s.kind==='neg');
+  // Sort by bounding-box area, biggest first
+  lives.sort((a,b)=>{
+    const bA=a.body.bounds,bB=b.body.bounds;
+    const areaA=(bA.max.x-bA.min.x)*(bA.max.y-bA.min.y);
+    const areaB=(bB.max.x-bB.min.x)*(bB.max.y-bB.min.y);
+    return areaB-areaA;
+  });
+  const toClear=lives.slice(0,2);
+  toClear.forEach(s=>dissolve(s));
+  // 2) Spawn 5 new negatives from the brain ceiling, spread across the width
+  const d=CATEGORY_DATA[state.category];
+  for(let i=0;i<5;i++){
+    const w=d.words[Math.floor(Math.random()*d.words.length)].name;
+    const xJitter=L.BCX+(Math.random()-0.5)*L.BHW*1.4;
+    const yStart=L.BT+10;
+    setTimeout(()=>{
+      // Slight stagger so they don't all collide at the same instant
+      spawnShape(w,xJitter,yStart,(Math.random()-0.5)*1.2,0.5);
+    },i*70);
+  }
+  // 3) Visual + audio cue: red screen flash + tiny camera shake
+  state.burnoutIntensity=Math.max(state.burnoutIntensity,0.45);
+  state.burnoutShake=Math.max(state.burnoutShake,0.35);
+  // 4) Grant a 2× positive boost on the NEXT CHOICE round as compensation
+  state.procBonus=true;
+  // 4) Cooldown UI
+  state.procCooldown=PROC_COOLDOWN_MS;
+  const pb=document.getElementById('procBtn');
+  if(pb)pb.classList.add('cooldown');
+  setTimeout(()=>{
+    state.procCooldown=0;
+    if(pb)pb.classList.remove('cooldown');
+  },PROC_COOLDOWN_MS);
+}
+const procBtn=document.getElementById('procBtn');
+if(procBtn){
+  procBtn.addEventListener('click',(e)=>{e.preventDefault();procrastinate();});
+  procBtn.addEventListener('touchend',(e)=>{e.preventDefault();procrastinate();},{passive:false});
+}
 
 
 // ---------- Boot ----------
